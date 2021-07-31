@@ -5,8 +5,8 @@ import '../utils/enum_helper.dart';
 
 class Message extends Equatable {
   Message({
-    this.type,
-    this.id,
+    required this.type,
+    required this.id,
     this.text,
     this.url,
     this.urls,
@@ -19,26 +19,26 @@ class Message extends Equatable {
 
   final MessageType type;
   final String id;
-  final String text;
-  final String url;
-  final List<String> urls;
-  final List<Option> options;
-  final DateTime createdAt;
-  final bool isSelf;
-  final bool arrayActionEnded;
-  final Map<String, dynamic> data;
+  final String? text;
+  final String? url;
+  final List<String>? urls;
+  final List<Option>? options;
+  final DateTime? createdAt;
+  final bool? isSelf;
+  final bool? arrayActionEnded;
+  final Map<String, dynamic>? data;
 
   Message copyWith({
-    MessageType type,
-    String id,
-    String text,
-    String url,
-    List<String> urls,
-    List<Option> options,
-    DateTime createdAt,
-    bool isSelf,
-    bool arrayActionEnded,
-    Map<String, dynamic> data,
+    MessageType? type,
+    String? id,
+    String? text,
+    String? url,
+    List<String>? urls,
+    List<Option>? options,
+    DateTime? createdAt,
+    bool? isSelf,
+    bool? arrayActionEnded,
+    Map<String, dynamic>? data,
   }) {
     return Message(
       type: type ?? this.type,
@@ -59,7 +59,7 @@ class Message extends Equatable {
     final attachments = json['message']['attachments'];
     var optElements;
 
-    MessageType type = MessageType.text;
+    MessageType? type;
     if (attachment != null) {
       type = EnumHelper.getEnum(attachment['type'], MessageType.values);
     } else if (attachments != null) {
@@ -74,7 +74,7 @@ class Message extends Equatable {
         DateTime.tryParse(json['message']['createdAt'] ?? '') ?? DateTime.now();
 
     return Message(
-      type: type,
+      type: type ?? MessageType.text,
       id: json['msg_id'] as String,
       text: json['message']['text'] as String,
       url: attachment != null ? attachment['payload']['url'] as String : null,
@@ -97,7 +97,7 @@ class Message extends Equatable {
   }
 
   @override
-  List<Object> get props => [
+  List<Object?> get props => [
         type,
         id,
         text,
@@ -119,7 +119,10 @@ class Message extends Equatable {
 }
 
 class Option {
-  Option({this.label, this.value});
+  Option({
+    required this.label,
+    required this.value,
+  });
 
   final String label;
   final String value;

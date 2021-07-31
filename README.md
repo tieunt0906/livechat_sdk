@@ -13,7 +13,7 @@ dependencies:
   livechat_sdk:
     git:
       url: https://github.com/tieunt0906/livechat_sdk.git
-      ref: develop
+      ref: null-safety
 ```
 
 then run `flutter pub get` to install package

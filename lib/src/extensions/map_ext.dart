@@ -1,7 +1,5 @@
 extension MapExt on Map {
   void omitIsNil({bool deep = false}) {
-    if (this == null) return;
-
     final keys = List.from(this.keys);
     for (final key in keys) {
       final value = this[key];
@@ -14,8 +12,6 @@ extension MapExt on Map {
   }
 
   void omitBy(List removeKeys, {bool deep = false}) {
-    if (this == null) return;
-
     final keys = List.from(this.keys);
     for (final key in keys) {
       final value = this[key];

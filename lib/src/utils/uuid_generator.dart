@@ -11,7 +11,7 @@ class UuidGenerator {
 
   static final UuidGenerator _instance = UuidGenerator._();
 
-  Uuid _uuid;
+  late Uuid _uuid;
 
   String generateUUIDByV4() {
     return _uuid.v4();

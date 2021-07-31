@@ -27,11 +27,11 @@ class ChatScreen extends StatefulWidget {
 }
 
 class _ChatScreenState extends State<ChatScreen> {
-  TextEditingController _textController;
+  late TextEditingController _textController;
 
-  LivechatClient _client;
-  StreamSubscription _connectionStatusSubscription;
-  StreamSubscription _messageSubscription;
+  late LivechatClient _client;
+  late StreamSubscription _connectionStatusSubscription;
+  late StreamSubscription _messageSubscription;
 
   String _responseText = '';
 
@@ -41,8 +41,8 @@ class _ChatScreenState extends State<ChatScreen> {
     _textController = TextEditingController();
 
     _client = LivechatClient(
-      baseUrl: '',
-      appId: '',
+      baseUrl: 'websocket url',
+      appId: 'your app id',
     );
 
     _connectionStatusSubscription =

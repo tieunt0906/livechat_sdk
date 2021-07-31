@@ -1,6 +1,5 @@
 import 'dart:convert';
 
-import 'package:meta/meta.dart';
 import 'package:rxdart/subjects.dart';
 import 'package:web_socket_channel/io.dart';
 import 'package:web_socket_channel/web_socket_channel.dart';
@@ -21,20 +20,20 @@ const removeKeys = [
 
 class LivechatClient {
   LivechatClient({
-    @required this.baseUrl,
-    @required this.appId,
+    required this.baseUrl,
+    required this.appId,
     this.returnArrayAction = false,
   });
 
   final String baseUrl;
   final String appId;
-  final bool returnArrayAction;
+  final bool? returnArrayAction;
 
-  WebSocketChannel _channel;
+  WebSocketChannel? _channel;
   bool _connecting = false;
   bool _reconnecting = false;
   bool _hasError = false;
-  String _accessToken;
+  String? _accessToken;
 
   final _connectionStatusController = BehaviorSubject<ConnectionStatus>();
 
@@ -59,10 +58,11 @@ class LivechatClient {
     _connectionStatus = ConnectionStatus.connecting;
 
     _channel = IOWebSocketChannel.connect(baseUrl);
-    _channel.stream.listen(
+    _channel!.stream.listen(
       (data) {
         final jsonData = json.decode(data);
-        EventType type = EnumHelper.getEnum(jsonData['type'], EventType.values);
+        EventType? type =
+            EnumHelper.getEnum(jsonData['type'], EventType.values);
 
         if (jsonData['status'] == 1) {
           _reconnecting = false;
@@ -82,21 +82,30 @@ class LivechatClient {
       onDone: _onDone,
     );
 
-    initConnection();
+    _initConnection();
   }
 
-  void initConnection() {
-    _channel.sink.add(json.encode({
+  void _initConnection() {
+    _channel!.sink.add(json.encode({
       'type': EnumHelper.getName(EventType.init),
       'app_id': appId,
       'return_array_action': returnArrayAction,
     }));
   }
 
+  void _checkInitialized() {
+    assert(
+      _channel != null,
+      "Client hasn't been initialized yet. Make sure to call .connect()",
+    );
+  }
+
   Future<String> sendTextMessage(String text) async {
+    _checkInitialized();
+
     final String msgId = UuidGenerator().generateUUIDByV4();
 
-    _channel.sink.add(json.encode({
+    _channel!.sink.add(json.encode({
       'type': EnumHelper.getName(EventType.chat),
       'app_id': appId,
       'access_token': _accessToken,
@@ -109,26 +118,28 @@ class LivechatClient {
     return msgId;
   }
 
-  Future<String> sendImage(String imageUrl, {String text}) {
+  Future<String> sendImage(String imageUrl, {String? text}) {
     return _sendFile(type: MessageType.image, url: imageUrl, text: text);
   }
 
-  Future<String> sendAudio(String audioUrl, {String text}) {
+  Future<String> sendAudio(String audioUrl, {String? text}) {
     return _sendFile(type: MessageType.audio, url: audioUrl, text: text);
   }
 
-  Future<String> sendVideo(String videoUrl, {String text}) {
+  Future<String> sendVideo(String videoUrl, {String? text}) {
     return _sendFile(type: MessageType.video, url: videoUrl, text: text);
   }
 
-  Future<String> sendFile(String fileUrl, {String text}) {
+  Future<String> sendFile(String fileUrl, {String? text}) {
     return _sendFile(type: MessageType.file, url: fileUrl, text: text);
   }
 
-  Future<String> sendImages(List<String> imageUrls, {String text}) async {
+  Future<String> sendImages(List<String> imageUrls, {String? text}) async {
+    _checkInitialized();
+
     final String msgId = UuidGenerator().generateUUIDByV4();
 
-    _channel.sink.add(json.encode({
+    _channel!.sink.add(json.encode({
       'type': EnumHelper.getName(EventType.chat),
       'app_id': appId,
       'access_token': _accessToken,
@@ -150,13 +161,15 @@ class LivechatClient {
   }
 
   Future<String> _sendFile({
-    @required MessageType type,
-    @required String url,
-    String text,
+    required MessageType type,
+    required String url,
+    String? text,
   }) async {
+    _checkInitialized();
+
     final String msgId = UuidGenerator().generateUUIDByV4();
 
-    _channel.sink.add(json.encode({
+    _channel!.sink.add(json.encode({
       'type': EnumHelper.getName(EventType.chat),
       'app_id': appId,
       'access_token': _accessToken,
@@ -176,7 +189,7 @@ class LivechatClient {
   }
 
   Future<void> _onData(jsonData) async {
-    EventType type = EnumHelper.getEnum(jsonData['type'], EventType.values);
+    EventType? type = EnumHelper.getEnum(jsonData['type'], EventType.values);
 
     if (type == EventType.init) {
       _connectionStatus = ConnectionStatus.connected;
@@ -184,7 +197,7 @@ class LivechatClient {
     } else if (type == EventType.chat) {
       Map<String, dynamic> data = jsonData['data'] as Map<String, dynamic>;
 
-      if (returnArrayAction) {
+      if (returnArrayAction!) {
         final messages =
             (data['messages'] as List).cast<Map<String, dynamic>>();
         final length = messages.length;
@@ -240,7 +253,7 @@ class LivechatClient {
       _connectionStatus = ConnectionStatus.connecting;
     }
 
-    await _channel.sink.close();
+    await _channel?.sink.close();
     await connect();
   }
 
@@ -253,6 +266,6 @@ class LivechatClient {
       _connectionStatusController.close(),
       _messageController.close(),
     ]);
-    return _channel.sink.close();
+    return _channel?.sink.close();
   }
 }

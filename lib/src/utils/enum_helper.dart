@@ -15,11 +15,11 @@ class EnumHelper {
     return ReCase(value).constantCase;
   }
 
-  static T getEnum<T>(String enumName, List<T> values) {
+  static T? getEnum<T>(String enumName, List<T> values) {
     final String cleanedName = recase(enumName);
-    return values.firstWhere(
-      (ele) => cleanedName == getName<T>(ele),
-      orElse: () => null,
-    );
+    return values.cast<T?>().firstWhere(
+          (ele) => cleanedName == getName<T>(ele!),
+          orElse: () => null,
+        );
   }
 }
